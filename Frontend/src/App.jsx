@@ -1,36 +1,48 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 const App = () => {
-  const [note, setNote] = useState([
-    {
-      title: "Learn React",
-      description: "Understand components, props, state, and hooks in React.",
-    },
-    {
-      title: "Build Notes App",
-      description:
-        "Create a simple CRUD notes application using React and Node.js.",
-    },
-    {
-      title: "Practice DSA",
-      description: "Solve 2 array and 2 string problems daily.",
-    },
-    {
-      title: "Workout",
-      description: "30 minutes of cardio and strength training.",
-    },
-    {
-      title: "Read Book",
-      description: "Read 20 pages of a self-improvement book.",
-    },
-  ]);
+  const [note, setNote] = useState([]);
 
-  const [title, setTitle] = useState("")
-    const [description, setDescription] = useState("")
+  function fetchNotes() {
+    axios.get("http://localhost:3000/api/notes").then((res) => {
+      console.log(res.data);
 
-  function formHandler(e){
+      setNote(res.data.note);
+    });
+  }
+
+  useEffect(()=>{
+    fetchNotes()
+  },[])
+
+  
+
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+
+  function formHandler(e) {
+    e.preventDefault();
     
-    e.preventDefault()
+    const {title,description} = e.target.elements
+    console.log(title.value);
+
+    axios.post('http://localhost:3000/api/notes',{
+      title: title.value,
+      description: description.value
+    }).then((res)=>{
+      console.log(res.data);
+      fetchNotes()
+    })
+
+    setTitle('')
+    setDescription('')
+  }
+
+  function deleteHandler(noteId){
+    axios.delete("http://localhost:3000/api/notes/"+noteId).then((res)=>{
+      fetchNotes()
+    })
   }
   return (
     <div id="main">
@@ -38,15 +50,29 @@ const App = () => {
         <h1>Notes App</h1>
       </div>
       <div className="form-container">
-        <form onSubmit={(e)=>{
-          formHandler(e)
-        }}>
-          <input type="text" placeholder="Title" value={title} onChange={(e)=>{
-            setTitle(e.target.value)
-          }} />
-          <input type="text" placeholder="Description" value={description} onChange={(e)=>{
-            setDescription(e.target.value)
-          }} />
+        <form
+          onSubmit={(e) => {
+            formHandler(e);
+          }}
+        >
+          <input
+            type="text"
+            placeholder="Title"
+            name="title"
+            value={title}
+            onChange={(e) => {
+              setTitle(e.target.value);
+            }}
+          />
+          <input
+            type="text"
+            placeholder="Description"
+            name="description"
+            value={description}
+            onChange={(e) => {
+              setDescription(e.target.value);
+            }}
+          />
           <button>Create Note</button>
         </form>
       </div>
@@ -55,10 +81,10 @@ const App = () => {
           return (
             <div key={idx} className="note">
               <h1>{note.title}</h1>
-              <p>
-                {note.description}
-              </p>
-              <button>Delete</button>
+              <p>{note.description}</p>
+              <button onClick={()=>{
+                deleteHandler(note._id)
+              }}>Delete</button>
             </div>
           );
         })}
