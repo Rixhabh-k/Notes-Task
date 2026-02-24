@@ -5,7 +5,7 @@ const App = () => {
   const [note, setNote] = useState([]);
 
   function fetchNotes() {
-    axios.get("http://localhost:3000/api/notes").then((res) => {
+    axios.get("/api/notes").then((res) => {
       console.log(res.data);
 
       setNote(res.data.note);
@@ -27,7 +27,7 @@ const App = () => {
     const {title,description} = e.target.elements
     console.log(title.value);
 
-    axios.post('http://localhost:3000/api/notes',{
+    axios.post('/api/notes',{
       title: title.value,
       description: description.value
     }).then((res)=>{
@@ -40,7 +40,7 @@ const App = () => {
   }
 
   function deleteHandler(noteId){
-    axios.delete("http://localhost:3000/api/notes/"+noteId).then((res)=>{
+    axios.delete("/api/notes/"+noteId).then((res)=>{
       fetchNotes()
     })
   }
